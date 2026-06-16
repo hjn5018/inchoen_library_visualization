@@ -24,67 +24,47 @@ class IncheonLibraryAPIClient:
 
     def fetch_raw_data(self):
         """
-        인천데이터포털 Open API로부터 모든 페이지 데이터를 호출하여 병합합니다.
+        인천데이터포털 Open API로부터 데이터를 호출하여 반환합니다. (pageNo=0 고정)
         인증키가 유효하지 않거나 통신 오류가 발생하면 None을 반환합니다.
         """
         if not self.has_valid_key():
             print("API 인증키가 설정되지 않았거나 유효하지 않습니다. 로컬 JSON 파일로 대체합니다.")
             return None
 
-        all_rows = []
-        page_no = 0
-        limit = 1000  # 무한 루프 방지를 위한 최대 페이지 제한
+        params = {
+            "apiKey": self.api_key,
+            "pageNo": 0,
+            "returnType": "json"
+        }
         
-        while page_no < limit:
-            params = {
-                "apiKey": self.api_key,
-                "pageNo": page_no,
-                "returnType": "json"
-            }
+        try:
+            print("인천 도서관 API 호출 중... (pageNo: 0 고정)")
+            response = requests.get(self.BASE_URL, params=params, timeout=10)
             
-            try:
-                print(f"인천 도서관 API 호출 중... (페이지 번호: {page_no})")
-                response = requests.get(self.BASE_URL, params=params, timeout=10)
+            # HTTP 응답 상태 코드 확인
+            if response.status_code != 200:
+                print(f"API 호출 오류 발생. 상태 코드: {response.status_code}")
+                return None
                 
-                # HTTP 응답 상태 코드 확인
-                if response.status_code != 200:
-                    print(f"API 호출 오류 발생. 상태 코드: {response.status_code}")
-                    break
-                    
-                data = response.json()
+            data = response.json()
+            
+            # 인천데이터포털 API 표준 응답 형식: { "LBRRY": { "row": [...], "totalCount": 123 } }
+            if "LBRRY" in data:
+                lbrry_data = data["LBRRY"]
+                rows = lbrry_data.get("row", [])
+                print(f"성공적으로 {len(rows)}개의 행을 수신했습니다.")
+                return rows
+            else:
+                # 잘못된 인증키 등의 API 오류 응답 처리
+                print(f"예상치 못한 응답 구조 수신: {data}")
+                return None
                 
-                # 인천데이터포털 API 표준 응답 형식: { "LBRRY": { "row": [...], "totalCount": 123 } }
-                if "LBRRY" in data:
-                    lbrry_data = data["LBRRY"]
-                    rows = lbrry_data.get("row", [])
-                    total_count = lbrry_data.get("totalCount", 0)
-                    
-                    if not rows:
-                        print(f"페이지 {page_no}에 더 이상 데이터가 없습니다.")
-                        break
-                        
-                    all_rows.extend(rows)
-                    print(f"성공적으로 {len(rows)}개의 행을 수신했습니다. (누적 수신: {len(all_rows)})")
-                    
-                    # 수신된 데이터 개수가 총 데이터 수 이상이면 호출을 중단합니다.
-                    if len(all_rows) >= int(total_count):
-                        print("모든 도서관 데이터를 정상적으로 수신했습니다.")
-                        break
-                        
-                    page_no += 1
-                else:
-                    # 잘못된 인증키 등의 API 오류 응답 처리
-                    print(f"예상치 못한 응답 구조 수신: {data}")
-                    break
-                    
-            except requests.exceptions.RequestException as e:
-                print(f"HTTP 통신 중 오류 발생: {e}")
-                break
-            except ValueError as e:
-                print(f"JSON 파싱 중 오류 발생: {e}")
-                break
+        except requests.exceptions.RequestException as e:
+            print(f"HTTP 통신 중 오류 발생: {e}")
+        except ValueError as e:
+            print(f"JSON 파싱 중 오류 발생: {e}")
 
-        return all_rows if all_rows else None
+        return None
 
     def get_library_dataframe(self):
         """
