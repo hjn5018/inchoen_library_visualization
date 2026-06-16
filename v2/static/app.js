@@ -37,7 +37,7 @@ async function initDashboard() {
             // 데이터 상태 메시지 업데이트
             if (resData.is_mock) {
                 statusAlert.className = "alert-box alert-info";
-                statusAlert.innerHTML = "🟡 **데모 모드**: API 인증키가 등록되지 않아 로컬 백업 파일(real_api_response.json) 데이터를 사용 중입니다. 실시간 동기화를 위해 사이드바에 API 인증키를 입력하세요.";
+                statusAlert.innerHTML = "🟡 **데모 모드**: API 인증키가 설정되지 않아 로컬 백업 파일(real_api_response.json) 데이터를 사용 중입니다. 실시간 데이터를 연동하려면 프로젝트 내 .env 파일에 API 인증키를 입력해주세요.";
             } else {
                 statusAlert.className = "alert-box alert-success";
                 statusAlert.innerHTML = "🟢 **실시간 모드**: 인천데이터포털의 Open API 실시간 데이터를 정상 수신하여 대시보드를 구동 중입니다.";
@@ -120,7 +120,6 @@ async function applyFiltersAndRegenerate(isInitial = false) {
     // 체크박스로부터 선택된 항목 수집
     const checkedDistricts = Array.from(document.querySelectorAll("input[data-group='district']:checked")).map(cb => cb.value);
     const checkedTypes = Array.from(document.querySelectorAll("input[data-group='type']:checked")).map(cb => cb.value);
-    const apiKey = document.getElementById("apiKeyInput").value;
 
     if (checkedDistricts.length === 0 || checkedTypes.length === 0) {
         alert("⚠️ 최소 하나의 군·구와 도서관 유형을 선택해야 대시보드를 생성할 수 있습니다.");
@@ -132,9 +131,6 @@ async function applyFiltersAndRegenerate(isInitial = false) {
     const typesQuery = checkedTypes.map(encodeURIComponent).join(",");
     
     let url = `/api/generate_visuals?districts=${districtsQuery}&types=${typesQuery}`;
-    if (apiKey) {
-        url += `&api_key=${encodeURIComponent(apiKey)}`;
-    }
 
     try {
         if (!isInitial) {
@@ -162,7 +158,7 @@ async function applyFiltersAndRegenerate(isInitial = false) {
             const statusAlert = document.getElementById("statusAlert");
             if (resData.is_mock) {
                 statusAlert.className = "alert-box alert-info";
-                statusAlert.innerHTML = "🟡 **데모 모드**: API 인증키가 등록되지 않아 로컬 백업 파일(real_api_response.json) 데이터를 사용 중입니다. 실시간 동기화를 위해 사이드바에 API 인증키를 입력하세요.";
+                statusAlert.innerHTML = "🟡 **데모 모드**: API 인증키가 설정되지 않아 로컬 백업 파일(real_api_response.json) 데이터를 사용 중입니다. 실시간 데이터를 연동하려면 프로젝트 내 .env 파일에 API 인증키를 입력해주세요.";
             } else {
                 statusAlert.className = "alert-box alert-success";
                 statusAlert.innerHTML = "🟢 **실시간 모드**: 인천데이터포털의 Open API 실시간 데이터를 정상 수신하여 대시보드를 구동 중입니다.";

@@ -60,11 +60,9 @@ def generate_visuals():
     try:
         districts_param = request.args.get('districts', '')
         types_param = request.args.get('types', '')
-        api_key_param = request.args.get('api_key', '')
 
-        # 사용자가 화면에서 커스텀 API 키를 입력한 경우 이를 적용하여 클라이언트 객체를 생성합니다.
-        active_client = IncheonLibraryAPIClient(api_key=api_key_param) if api_key_param else client
-        df, is_mock = active_client.get_library_dataframe()
+        # 설정파일(.env) 및 환경변수의 API 키를 사용하는 기본 클라이언트를 사용하여 데이터프레임을 로드합니다.
+        df, is_mock = client.get_library_dataframe()
 
         if df.empty:
             return jsonify({

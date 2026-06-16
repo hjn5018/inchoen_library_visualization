@@ -86,30 +86,24 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------
-# Sidebar Section
+# 사이드바 영역
 # ----------------------------------------------------
 st.sidebar.markdown("### ⚙️ 설정 및 필터")
 
-# API Key Input
-api_key_input = st.sidebar.text_input(
-    "인천데이터포털 API Key 입력",
-    type="password",
-    help="인천데이터포털에서 발급받은 오픈 API 키를 입력하세요. 입력하지 않으면 데모 데이터로 구동됩니다."
-)
 
 @st.cache_data(show_spinner="인천 도서관 데이터를 불러오는 중...")
-def load_data(api_key):
-    """Loads and caches the library data using the API client."""
-    client = IncheonLibraryAPIClient(api_key=api_key)
+def load_data():
+    """API 클라이언트를 통해 도서관 데이터를 불러와 캐싱합니다."""
+    client = IncheonLibraryAPIClient()
     df, is_mock = client.get_library_dataframe()
     return df, is_mock
 
-# Load data based on API Key (text input overrides environment variable)
-df, is_mock = load_data(api_key_input if api_key_input else None)
+# 환경 변수에 기반하여 데이터를 로드합니다.
+df, is_mock = load_data()
 
-# Show data source status message
+# 데이터 소스 상태 메시지 출력
 if is_mock:
-    st.info("🟡 **데모 모드**: API 인증키가 없어 사전 구성된 데모 데이터(Mock Data)를 표시하고 있습니다. 실시간 데이터를 보려면 사이드바에 API 인증키를 입력해주세요.")
+    st.info("🟡 **데모 모드**: API 인증키가 설정되지 않아 로컬 백업 데이터(JSON)를 표시하고 있습니다. 실시간 데이터를 연동하려면 프로젝트 내 .env 파일에 API 인증키를 입력해주세요.")
 else:
     st.success("🟢 **실시간 모드**: 인천데이터포털의 OpenAPI 실시간 데이터를 수신하여 표시하고 있습니다.")
 
