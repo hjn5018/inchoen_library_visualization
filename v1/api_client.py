@@ -1,8 +1,8 @@
 import os
 import requests
 import pandas as pd
+import json
 from dotenv import load_dotenv
-from mock_data import get_mock_library_data
 
 # Load environment variables
 load_dotenv()
@@ -100,9 +100,23 @@ class IncheonLibraryAPIClient:
         is_mock = False
         
         if raw_data is None:
-            print("Using fallback mock library data.")
-            raw_data = get_mock_library_data()
-            is_mock = True
+            print("Using fallback real_api_response.json library data.")
+            fallback_paths = ["real_api_response.json", "../real_api_response.json"]
+            for path in fallback_paths:
+                if os.path.exists(path):
+                    try:
+                        with open(path, encoding='utf-8') as f:
+                            json_data = json.load(f)
+                            raw_data = json_data.get("data", [])
+                            is_mock = True
+                            print(f"Successfully loaded fallback data from {path}.")
+                            break
+                    except Exception as e:
+                        print(f"Error loading {path}: {e}")
+            if raw_data is None:
+                print("Warning: Failed to load fallback JSON data. Using empty dataset.")
+                raw_data = []
+                is_mock = True
             
         df = pd.DataFrame(raw_data)
         return self.clean_dataframe(df), is_mock
