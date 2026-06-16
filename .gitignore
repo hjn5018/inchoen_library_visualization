@@ -23,6 +23,7 @@ Thumbs.db
 *.html
 *.png
 *.jpg
-!v2/static/index.html
-v2/static/generated/
+!static/index.html
+static/generated/
+
 
