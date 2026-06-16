@@ -55,14 +55,27 @@ pip install -r requirements.txt
    ```
 *(인증키가 기입되지 않았을 경우, 자동으로 데모 모드로 실행되어 `real_api_response.json` 파일의 65개 인천 도서관 데이터를 안전하게 로딩합니다.)*
 
-### 4. 대시보드 서버 구동
+### 4. [v2] Flask 대시보드 서버 구동
 가상환경 콘솔창에서 아래 명령어로 Flask 서버를 실행합니다.
 ```bash
 python server.py
 ```
-
 서버 가동 후 웹 브라우저를 열고 아래 로컬 호스트 주소로 접속합니다.
 - **대시보드 접속 주소**: [http://localhost:5000](http://localhost:5000)
+
+### 5. [v3] 정적 빌드 버전 (Flask 없음) 구동
+Flask 서버 없이 Python 스크립트로 지도, 차트 및 데이터를 일괄 파일로 빌드한 후, HTML 파일을 직접 오픈하여 브라우저에서 실행할 수 있는 서버리스 아키텍처 버전입니다.
+
+1. **정적 리소스 빌드**:
+   ```bash
+   # 기본 전체 데이터 빌드
+   python v3/generator.py
+   
+   # 특정 필터 조건으로 시각화 사전 빌드 원할 시 예시:
+   python v3/generator.py --districts="남동구,연수구" --types="공공도서관"
+   ```
+2. **대시보드 열기**:
+   - `v3/static/index.html` 파일을 웹 브라우저로 직접 **더블클릭**하여 실행합니다. (CORS 에러 없이 즉시 실행됩니다.)
 
 ---
 
@@ -73,15 +86,27 @@ incheon_library_visualization/
 ├── venv/                    # 파이썬 가상환경 폴더 (사용자 직접 빌드)
 ├── real_api_response.json   # 실제 인천 도서관 API 응답 수집본 (Fallback 데이터 백업)
 ├── requirements.txt         # 파이썬 의존성 패키지 목록 (Flask, pandas 등)
-├── api_client.py            # 오픈 API 페이징 호출 및 데이터 정제 클래스 (객체지향 설계)
-├── server.py                # Flask 웹서버 구동 파일 (API 핸들러 및 시각화 파일 실시간 렌더링)
+├── api_client.py            # [v2] 오픈 API 호출 및 데이터 정제 클래스
+├── server.py                # [v2] Flask 웹서버 구동 파일
+├── static/                  # [v2] 프론트엔드 정적 리소스 폴더
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
+│
+├── v3/                      # [v3] 정적 빌드 버전 (Flask 미사용)
+│   ├── requirements.txt     # v3 의존성 패키지 목록
+│   ├── api_client.py        # v3 오픈 API 호출 및 데이터 정제 클래스 (latest data 명칭 반영)
+│   ├── generator.py         # v3 정적 지도, 차트, 데이터 (.js) 생성 빌더 스크립트
+│   └── static/              # v3 프론트엔드 리소스 폴더
+│       ├── index.html       # v3 대시보드 HTML 파일
+│       ├── style.css        # v3 대시보드 스타일시트
+│       ├── app.js           # v3 클라이언트 단 독립 필터/검색 스크립트
+│       └── generated/       # generator.py에 의해 생성되는 시각화 에셋 보관 폴더
+│           ├── map.html     # Folium 생성 정적 위치 분포 지도
+│           ├── chart_*.png  # Matplotlib 생성 통계 차트 이미지
+│           └── libraries.js # frontend 연동용 데이터 파일 (CORS 방지 구조)
+│
 ├── .gitignore               # Git 파일 제외 설정 (.env 및 동적 생성 파일 차단)
-├── README.md                # 프로젝트 통합 가이드 설명서 (본 파일)
-└── static/                  # 프론트엔드 정적 리소스 보관 폴더
-    ├── index.html           # 대시보드 화면 뼈대 정의
-    ├── style.css            # 모던 HSL 색상 적용 대시보드 CSS 스타일시트
-    ├── app.js               # 비동기 필터 갱신 및 테이블 검색 자바스크립트
-    └── generated/           # 백엔드에 의해 실시간 생성되는 시각화 에셋 저장소 (Git 제외)
-        ├── map.html         # 동적으로 생성되는 folium 지도 웹페이지
-        └── chart_*.png      # 동적으로 빌드되는 matplotlib 통계 차트 이미지들
+└── README.md                # 프로젝트 통합 가이드 설명서 (본 파일)
 ```
+

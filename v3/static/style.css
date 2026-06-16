@@ -1,0 +1,416 @@
+/* ----------------------------------------------------
+   글로벌 공통 스타일 정의 및 CSS 변수 선언
+---------------------------------------------------- */
+:root {
+    --bg-primary: #f8fafc;
+    --sidebar-bg: #ffffff;
+    --card-bg: rgba(255, 255, 255, 0.75);
+    --border-color: rgba(226, 232, 240, 0.8);
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --primary-color: #4f46e5;      /* 인디고 블루 */
+    --accent-color: #06b6d4;       /* 사이언 */
+    --success-color: #10b981;      /* 에메랄드 그린 */
+    --warning-color: #f59e0b;      /* 오렌지 골드 */
+    --danger-color: #ef4444;       /* 소프트 레드 */
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+    --transition-speed: 0.25s;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    font-family: 'Noto Sans KR', 'Outfit', sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ----------------------------------------------------
+   메인 레이아웃 구조 (사이드바 + 콘텐츠 영역)
+---------------------------------------------------- */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* 1. 사이드바 스타일링 */
+.sidebar {
+    width: 320px;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar-header h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+}
+
+/* 사이드바 개별 필터 그룹 */
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* 군구 / 유형 다중 선택 스크롤 컨테이너 */
+.checkbox-container {
+    max-height: 160px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.5rem;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #334155;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-item input {
+    cursor: pointer;
+}
+
+/* 필터 전체선택/해제 버튼 영역 */
+.select-all-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.select-all-buttons button {
+    flex: 1;
+    background: none;
+    border: 1px solid #cbd5e1;
+    padding: 0.35rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.select-all-buttons button:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* 사이드바 적용 버튼 */
+.primary-btn {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #312e81 100%);
+    color: white;
+    border: none;
+    padding: 0.85rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity var(--transition-speed);
+    margin-top: 0.5rem;
+}
+
+.primary-btn:hover {
+    opacity: 0.9;
+}
+
+.loading-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 0.5rem;
+}
+
+.generator-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f1f5f9;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    color: #475569;
+    line-height: 1.4;
+    border: 1px solid #cbd5e1;
+}
+
+/* 2. 메인 콘텐츠 스타일링 */
+.main-content {
+    flex-grow: 1;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    overflow-y: auto;
+}
+
+/* 대시보드 상단 타이틀 헤더 */
+.content-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.main-title {
+    font-size: 2.4rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.03em;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* 실시간/최신 데이터 정보 창 (Alert Box) */
+.alert-box {
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+
+.alert-info {
+    background-color: #fef3c7;
+    border-color: #fde68a;
+    color: #b45309;
+}
+
+.alert-success {
+    background-color: #d1fae5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+/* ----------------------------------------------------
+   KPI 메트릭 카드 구조
+---------------------------------------------------- */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.kpi-card {
+    background: var(--sidebar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+}
+
+.kpi-label {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.kpi-value {
+    color: var(--text-main);
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.kpi-sub {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    margin-top: 0.4rem;
+}
+
+/* ----------------------------------------------------
+   시각화 컴포넌트 카드 구조
+---------------------------------------------------- */
+.card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    padding: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1.25rem;
+    border-left: 4px solid var(--primary-color);
+    padding-left: 0.5rem;
+}
+
+/* 1. 지도 컨테이너 */
+.map-container-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.iframe-wrapper {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+/* 2. 그래프 차트 영역 */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid #f1f5f9;
+}
+
+.chart-wrapper img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+}
+
+/* 가로 100% 차트 래퍼 */
+.chart-wrapper-full {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem 1rem;
+    border: 1px solid #f1f5f9;
+}
+
+.chart-wrapper-full img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+}
+
+/* ----------------------------------------------------
+   상세 데이터 테이블
+---------------------------------------------------- */
+.table-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.table-header .section-title {
+    margin-bottom: 0;
+}
+
+.search-box input {
+    padding: 0.6rem 1rem;
+    width: 280px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.search-box input:focus {
+    border-color: var(--primary-color);
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+}
+
+.library-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+    background: #ffffff;
+}
+
+.library-table th {
+    background-color: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    padding: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.library-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #475569;
+}
+
+.library-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding-top: 0.5rem;
+}

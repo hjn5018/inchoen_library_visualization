@@ -24,6 +24,8 @@ Thumbs.db
 *.png
 *.jpg
 !static/index.html
+!v3/static/index.html
 static/generated/
+v3/static/generated/
 
 

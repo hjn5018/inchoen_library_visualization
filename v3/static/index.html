@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인천광역시 도서관 현황 대시보드 (v3)</title>
+    <!-- 구글 폰트 설정 (Noto Sans KR 및 Outfit) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- 커스텀 CSS 스타일시트 연동 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 1. 사이드바 (설정 및 필터 영역) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>⚙️ 대시보드 필터</h2>
+            </div>
+
+            <!-- 군·구 행정구역 선택 리스트 (자바스크립트에서 동적 생성) -->
+            <div class="filter-group">
+                <label>📍 군·구 선택</label>
+                <div class="checkbox-container" id="districtFilters">
+                    <span class="loading-text">로드 중...</span>
+                </div>
+                <div class="select-all-buttons">
+                    <button type="button" onclick="toggleAllCheckboxes('districtFilters', true)">전체 선택</button>
+                    <button type="button" onclick="toggleAllCheckboxes('districtFilters', false)">전체 해제</button>
+                </div>
+            </div>
+
+            <!-- 도서관 운영 유형 선택 리스트 (자바스크립트에서 동적 생성) -->
+            <div class="filter-group">
+                <label>📚 도서관 유형</label>
+                <div class="checkbox-container" id="typeFilters">
+                    <span class="loading-text">로드 중...</span>
+                </div>
+                <div class="select-all-buttons">
+                    <button type="button" onclick="toggleAllCheckboxes('typeFilters', true)">전체 선택</button>
+                    <button type="button" onclick="toggleAllCheckboxes('typeFilters', false)">전체 해제</button>
+                </div>
+            </div>
+
+            <!-- 필터 적용 버튼 -->
+            <button id="applyBtn" class="primary-btn">적용하기</button>
+            
+            <!-- 빌더 안내 추가 -->
+            <div class="generator-info">
+                <p>※ 지도와 통계 차트는 Python 빌더 실행 시 일괄 렌더링된 결과 기준입니다. 필터를 적용하면 통계 카드와 상세 데이터 테이블이 즉각적으로 실시간 필터링됩니다.</p>
+                <p style="margin-top: 8px; font-size: 11px; color: #8b9bb4;">(새로운 조건으로 시각화 빌드를 원하시면 터미널에서 python generator.py --districts="..." --types="..." 명령을 실행하세요.)</p>
+            </div>
+        </aside>
+
+        <!-- 2. 메인 대시보드 콘텐츠 영역 -->
+        <main class="main-content">
+            <!-- 대시보드 타이틀 헤더 -->
+            <header class="content-header">
+                <h1 class="main-title">인천광역시 도서관 현황 대시보드</h1>
+                <p class="subtitle">HTML, CSS, JavaScript와 Python 데이터 빌더(pandas, matplotlib, folium)를 연동한 정적 빌드 대시보드(v3)입니다.</p>
+            </header>
+
+            <!-- 실시간/최신 데이터 소스 상태 메시지 -->
+            <div id="statusAlert" class="alert-box alert-info">
+                데이터를 로드하는 중입니다...
+            </div>
+
+            <!-- KPI 통계 카드 영역 -->
+            <section class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">총 도서관 수</div>
+                    <div class="kpi-value" id="kpiTotalLibraries">0 개소</div>
+                    <div class="kpi-sub">선택 지역 및 유형의 개소 합계</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">총 소장 도서 수</div>
+                    <div class="kpi-value" id="kpiTotalBooks">0 권</div>
+                    <div class="kpi-sub">누적 도서 보유량</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">총 열람 좌석 수</div>
+                    <div class="kpi-value" id="kpiTotalSeats">0 석</div>
+                    <div class="kpi-sub">누적 독서/열람 공간</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">최대 도서 보유관</div>
+                    <div class="kpi-value" id="kpiLargestLibrary">N/A</div>
+                    <div class="kpi-sub" id="kpiLargestLibraryBooks">0권 보유</div>
+                </div>
+            </section>
+
+            <!-- 지도 및 요약 섹션 -->
+            <section class="dashboard-section map-section">
+                <div class="card map-container-card">
+                    <h3 class="section-title">📍 도서관 위치 분포 지도</h3>
+                    <!-- Folium 지도가 랜더링되는 Iframe -->
+                    <div class="iframe-wrapper">
+                        <iframe id="mapIframe" src="generated/map.html" frameborder="0" width="100%" height="480"></iframe>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 통계 그래프 차트 섹션 (Matplotlib 생성 이미지 연동) -->
+            <section class="charts-grid">
+                <div class="card chart-card">
+                    <h3 class="section-title">📊 군·구별 도서관 수 분포</h3>
+                    <div class="chart-wrapper">
+                        <img id="districtChart" src="generated/chart_district.png" alt="군·구별 도서관 수 차트">
+                    </div>
+                </div>
+                <div class="card chart-card">
+                    <h3 class="section-title">🍩 도서관 유형별 비율</h3>
+                    <div class="chart-wrapper">
+                        <img id="typeChart" src="generated/chart_type.png" alt="도서관 유형별 차트">
+                    </div>
+                </div>
+            </section>
+
+            <section class="dashboard-section">
+                <div class="card chart-card-full">
+                    <h3 class="section-title">📈 도서 보유량 상위 10개 도서관</h3>
+                    <div class="chart-wrapper-full">
+                        <img id="topBooksChart" src="generated/chart_top_books.png" alt="도서 보유량 상위 10개 차트">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 상세 데이터 브라우저 (표 형태 및 검색 지원) -->
+            <section class="dashboard-section table-section">
+                <div class="card table-card">
+                    <div class="table-header">
+                        <h3 class="section-title">📂 인천 도서관 상세 데이터 브라우저</h3>
+                        <div class="search-box">
+                            <input type="text" id="tableSearch" placeholder="🔍 도서관 이름 또는 주소 검색...">
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="library-table">
+                            <thead>
+                                <tr>
+                                    <th>도서관명</th>
+                                    <th>유형</th>
+                                    <th>군·구</th>
+                                    <th>소장도서수</th>
+                                    <th>열람좌석수</th>
+                                    <th>소재지 도로명주소</th>
+                                    <th>전화번호</th>
+                                    <th>휴관일 안내</th>
+                                </tr>
+                            </thead>
+                            <tbody id="libraryTableBody">
+                                <!-- 자바스크립트에서 테이블 행이 동적으로 생성됩니다. -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span id="recordCountText">총 0개의 도서관 레코드가 조회되었습니다.</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 데이터 파일 및 대시보드 인터랙션 스크립트 연동 -->
+    <script src="generated/libraries.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
