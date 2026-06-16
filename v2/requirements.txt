@@ -1,0 +1,6 @@
+Flask
+pandas
+matplotlib
+folium
+requests
+python-dotenv
